@@ -1,877 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DPM · BK Bookmark Review</title>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --navy:      #1a2d4a;
-  --navy2:     #253e63;
-  --gold:      #c8922a;
-  --gold-lt:   #f0d080;
-  --white:     #ffffff;
-  --off:       #f1f3f4;
-  --chrome-bar:#f1f3f4;
-  --chrome-bg: #e8eaed;
-  --chrome-top:#dee1e6;
-  --text:      #202124;
-  --text2:     #5f6368;
-  --border:    #dadce0;
-  --green:     #1e8a45;
-  --green-bg:  #e6f4ea;
-  --red:       #c5221f;
-  --red-bg:    #fce8e6;
-  --blue:      #1a73e8;
-  --sans:      'Open Sans', sans-serif;
-  --serif:     'Merriweather', Georgia, serif;
-  --radius:    4px;
-  --chip-h:    28px;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--sans); background: #e8eaed; min-height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPM · BK Bookmark Review</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide-react@latest"></script>
 
-/* ── DPM TOP BAR ── */
-.dpm-bar {
-  background: var(--navy);
-  border-bottom: 3px solid var(--gold);
-  padding: 0 20px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.dpm-brand { display: flex; flex-direction: column; gap: 1px; }
-.dpm-brand-name { font-family: var(--serif); font-size: 14px; color: #fff; letter-spacing: 0.01em; }
-.dpm-brand-sub  { font-size: 10px; font-weight: 300; color: var(--gold-lt); letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
-.dpm-right { display: flex; gap: 10px; align-items: center; }
+    <style>
+        :root {
+            --navy: #1a2d4a;
+            --navy2: #253e63;
+            --gold: #c8922a;
+            --gold-lt: #f0d080;
+            --white: #ffffff;
+            --off: #f1f3f4;
+            --chrome-bar: #f1f3f4;
+            --chrome-bg: #e8eaed;
+            --chrome-top: #dee1e6;
+            --text: #202124;
+            --text2: #5f6368;
+            --border: #dadce0;
+            --green: #1e8a45;
+            --green-bg: #e6f4ea;
+            --red: #c5221f;
+            --red-bg: #fce8e6;
+            --blue: #1a73e8;
+            --sans: 'Open Sans', sans-serif;
+            --serif: 'Merriweather', Georgia, serif;
+            --radius: 4px;
+            --chip-h: 28px;
+        }
 
-/* ── CHROME WINDOW CHROME ── */
-.chrome-window {
-  max-width: 900px;
-  margin: 24px auto;
-  border-radius: 10px 10px 6px 6px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-  overflow: visible;
-  background: var(--white);
-}
+        body {
+            font-family: var(--sans);
+            background: #e8eaed;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
 
-/* Tab strip */
-.chrome-tab-strip {
-  background: var(--chrome-top);
-  border-radius: 10px 10px 0 0;
-  height: 38px;
-  display: flex;
-  align-items: flex-end;
-  padding: 0 80px 0 16px;
-  position: relative;
-}
-.chrome-tab {
-  background: var(--white);
-  border-radius: 8px 8px 0 0;
-  height: 33px;
-  min-width: 180px;
-  max-width: 240px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 14px 0 12px;
-  font-size: 12px;
-  color: var(--text);
-  font-weight: 400;
-  position: relative;
-  flex: 1;
-}
-.chrome-tab img { width: 16px; height: 16px; border-radius: 2px; }
-.chrome-tab-title { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
-.chrome-tab-x { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 11px; }
-.chrome-tab-x:hover { background: var(--chrome-bg); }
-.chrome-dots {
-  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-  display: flex; gap: 7px;
-}
-.chrome-dot { width: 12px; height: 12px; border-radius: 50%; }
-.chrome-dot.r { background: #ff5f57; }
-.chrome-dot.y { background: #febc2e; }
-.chrome-dot.g { background: #28c840; }
+        .font-serif { font-family: var(--serif); }
+        .font-sans { font-family: var(--sans); }
 
-/* Address bar row */
-.chrome-address-row {
-  background: var(--white);
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--border);
-}
-.chrome-nav-btn {
-  width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent;
-  display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 14px;
-}
-.chrome-nav-btn:hover { background: var(--chrome-bg); }
-.chrome-nav-btn:disabled { opacity: 0.35; cursor: default; }
-.chrome-omni {
-  flex: 1; background: var(--chrome-bg); border-radius: 20px; height: 32px;
-  display: flex; align-items: center; padding: 0 14px; gap: 6px;
-  font-size: 13px; color: var(--text2); cursor: text;
-}
-.chrome-omni svg { flex-shrink: 0; }
-.chrome-omni span { flex: 1; color: var(--text); }
+        /* Custom Chrome Styles */
+        .chrome-window {
+            max-width: 900px;
+            margin: 24px auto;
+            border-radius: 10px 10px 6px 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+            overflow: visible;
+            background: var(--white);
+        }
 
-/* ── BOOKMARKS BAR ── */
-.bookmarks-bar {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  padding: 3px 10px;
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 2px;
-  position: relative;
-}
-.bar-label {
-  font-size: 11px; color: var(--text2); margin-right: 4px; white-space: nowrap; user-select: none;
-}
+        .bk-chip.removed {
+            opacity: 0.45;
+            text-decoration: line-through;
+            background: var(--red-bg) !important;
+            border-color: #f5c6c4;
+        }
 
-/* Bookmark chip */
-.bk-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: var(--chip-h);
-  padding: 0 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  color: var(--text);
-  cursor: grab;
-  user-select: none;
-  white-space: nowrap;
-  max-width: 160px;
-  border: 1px solid transparent;
-  transition: background 0.1s, border-color 0.1s, opacity 0.15s;
-  position: relative;
-}
-.bk-chip:hover { background: var(--chrome-bg); }
-.bk-chip.dragging { opacity: 0.25; cursor: grabbing; }
-.bk-chip.drag-target { border-color: var(--blue); background: #e8f0fe; }
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
 
-.bk-chip img.favicon {
-  width: 16px; height: 16px; border-radius: 2px; flex-shrink: 0;
-  object-fit: contain;
-}
-.bk-chip .chip-name {
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* Keep / Remove toggle buttons ON the chip */
-.chip-actions {
-  display: none;
-  gap: 2px;
-  align-items: center;
-  margin-left: 2px;
-}
-.bk-chip:hover .chip-actions { display: flex; }
+        .modal-pop {
+            animation: modalPop 0.2s ease-out;
+        }
 
-.chip-btn {
-  width: 18px; height: 18px; border-radius: 3px; border: none;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 10px; flex-shrink: 0;
-  transition: background 0.12s;
-}
-.chip-btn.keep-btn  { background: var(--green-bg); color: var(--green); }
-.chip-btn.keep-btn:hover  { background: #c8e6c9; }
-.chip-btn.keep-btn.active { background: var(--green); color: #fff; }
-.chip-btn.trash-btn { background: var(--red-bg); color: var(--red); }
-.chip-btn.trash-btn:hover { background: #ffcdd2; }
-.chip-btn.trash-btn.active { background: var(--red); color: #fff; }
-
-/* Chips in the removed state */
-.bk-chip.removed {
-  opacity: 0.45;
-  text-decoration: line-through;
-  background: var(--red-bg) !important;
-  border-color: #f5c6c4;
-}
-.bk-chip.removed .chip-actions { display: flex; }
-
-/* Drop zone indicator */
-.drop-line {
-  display: none;
-  width: 2px; min-height: var(--chip-h); background: var(--blue);
-  border-radius: 1px; flex-shrink: 0; pointer-events: none;
-}
-.drop-line.active { display: block; }
-
-/* Add bookmark button */
-.add-chip-btn {
-  height: var(--chip-h); padding: 0 10px; border-radius: 4px;
-  border: 1px dashed var(--border); background: transparent;
-  font-size: 12px; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 4px;
-  white-space: nowrap; transition: background 0.12s;
-}
-.add-chip-btn:hover { background: var(--chrome-bg); color: var(--text); border-color: #bbb; }
-
-/* ── TRASH ZONE ── */
-.trash-zone {
-  background: var(--white);
-  border: 2px dashed var(--border);
-  border-top: none;
-  border-radius: 0 0 6px 6px;
-  padding: 12px 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  transition: background 0.15s, border-color 0.15s;
-  position: relative;
-}
-.trash-zone.drag-over {
-  background: var(--red-bg);
-  border-color: var(--red);
-}
-.trash-icon {
-  font-size: 22px; opacity: 0.35; flex-shrink: 0; pointer-events: none;
-  transition: opacity 0.15s, transform 0.15s;
-}
-.trash-zone.drag-over .trash-icon { opacity: 0.75; transform: scale(1.15); }
-.trash-label {
-  font-size: 12px; color: var(--text2); font-weight: 300; flex: 1; pointer-events: none;
-}
-.trash-zone.drag-over .trash-label { color: var(--red); font-weight: 400; }
-.trash-chips {
-  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-}
-.trash-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  height: 24px; padding: 0 8px;
-  background: var(--red-bg); border: 1px solid #f5c6c4; border-radius: 4px;
-  font-size: 11px; color: var(--red); cursor: pointer;
-  transition: background 0.12s;
-}
-.trash-chip:hover { background: #fde0de; }
-.trash-chip img { width: 13px; height: 13px; border-radius: 2px; }
-.trash-chip .restore-x { font-size: 13px; color: var(--green); font-weight: 700; margin-left: 2px; }
-.trash-empty { font-size: 12px; color: var(--text2); opacity: 0.5; font-style: italic; }
-
-/* ── PAGE CONTENT AREA ── */
-.page-content {
-  background: var(--off);
-  border-radius: 0 0 6px 6px;
-  padding: 28px 24px;
-  min-height: 340px;
-}
-
-/* ── ADD BOOKMARK MODAL ── */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.35); z-index: 100;
-  align-items: center; justify-content: center;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--white); border-radius: 8px; padding: 20px 22px;
-  width: 360px; box-shadow: 0 8px 30px rgba(0,0,0,0.22);
-  animation: popIn 0.18s ease;
-}
-@keyframes popIn { from { opacity:0; transform:scale(0.94); } to { opacity:1; transform:none; } }
-.modal h3 { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
-.modal label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; display: block; margin-bottom: 4px; }
-.modal input {
-  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
-  border-radius: var(--radius); font-size: 13px; font-family: var(--sans);
-  margin-bottom: 12px; outline: none; transition: border-color 0.15s;
-}
-.modal input:focus { border-color: var(--navy); }
-.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
-.modal-cancel {
-  padding: 7px 16px; border: 1px solid var(--border); border-radius: var(--radius);
-  background: transparent; font-size: 12px; cursor: pointer; color: var(--text2); font-family: var(--sans);
-}
-.modal-cancel:hover { background: var(--chrome-bg); }
-.modal-add {
-  padding: 7px 18px; background: var(--navy); color: #fff; border: none;
-  border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--sans);
-}
-.modal-add:hover { background: var(--navy2); }
-
-/* ── BOTTOM ACTION BAR ── */
-.action-bar {
-  background: var(--white);
-  border-top: 1px solid var(--border);
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border-radius: 0 0 6px 6px;
-}
-.action-btn {
-  font-family: var(--sans); font-size: 12px; font-weight: 600;
-  letter-spacing: 0.07em; text-transform: uppercase;
-  padding: 9px 20px; border-radius: var(--radius); cursor: pointer;
-  transition: all 0.14s;
-}
-.action-btn.primary { background: var(--navy); color: #fff; border: none; }
-.action-btn.primary:hover { background: var(--navy2); }
-.action-btn.secondary { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-.action-btn.secondary:hover { background: var(--chrome-bg); color: var(--text); }
-.action-hint { font-size: 12px; color: var(--text2); font-weight: 300; flex: 1; }
-
-/* Code result */
-.code-result {
-  display: none; background: var(--navy); border-radius: var(--radius);
-  padding: 14px 18px; margin-top: 16px; animation: fadeUp 0.2s ease;
-}
-.code-result.visible { display: block; }
-@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; none; } }
-.code-result-label { font-size: 10px; color: var(--gold-lt); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; opacity: 0.75; }
-.code-result-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
-.code-val {
-  font-family: 'Courier New', monospace; font-size: 26px; font-weight: 700;
-  letter-spacing: 0.2em; color: var(--gold-lt); flex: 1; user-select: all;
-}
-.copy-btn {
-  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
-  padding: 6px 14px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.25);
-  background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.14s;
-}
-.copy-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
-.copy-btn.done { border-color: var(--gold); color: var(--gold-lt); background: rgba(200,146,42,0.15); }
-.code-summary { font-size: 11px; color: rgba(255,255,255,0.42); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; }
-.code-summary strong { color: rgba(255,255,255,0.65); }
-
-/* ── DECODE SECTION ── */
-.decode-section { margin-top: 22px; }
-.decode-toggle {
-  font-size: 12px; color: var(--blue); cursor: pointer; user-select: none;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.decode-toggle:hover { text-decoration: underline; }
-.decode-body { display: none; margin-top: 14px; }
-.decode-body.open { display: block; }
-.decode-row { display: flex; gap: 8px; margin-bottom: 12px; }
-.decode-input {
-  font-family: 'Courier New', monospace; font-size: 18px; font-weight: 700; letter-spacing: 0.15em;
-  padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius);
-  color: var(--navy); background: var(--white); width: 200px; text-transform: uppercase; outline: none;
-}
-.decode-input:focus { border-color: var(--navy); }
-.decode-go { padding: 8px 18px; background: var(--navy); color: #fff; border: none; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--sans); }
-.decode-go:hover { background: var(--navy2); }
-
-.decode-result { display: none; }
-.decode-result.visible { display: block; animation: fadeUp 0.18s ease; }
-.decode-result-inner {
-  border: 1px solid var(--border); border-radius: var(--radius);
-  background: var(--white); overflow: hidden;
-}
-.decode-result-head {
-  background: var(--navy); padding: 9px 14px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gold-lt);
-}
-.decode-result.error .decode-result-inner { border-color: #f5c6c4; }
-.decode-result.error .decode-result-head { background: var(--red); color: #fff; }
-.decode-err-body { padding: 12px 14px; font-size: 13px; color: var(--red); }
-.dr-items { display: flex; flex-direction: column; }
-.dr-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 14px; border-bottom: 1px solid #f1f3f4; font-size: 12px;
-}
-.dr-row:last-child { border-bottom: none; }
-.dr-row.removed { opacity: 0.45; }
-.dr-row img { width: 14px; height: 14px; border-radius: 2px; }
-.dr-num { font-size: 10px; color: #bbb; width: 16px; font-family: monospace; }
-.dr-name { flex: 1; font-weight: 600; color: var(--navy); }
-.dr-row.removed .dr-name { text-decoration: line-through; color: var(--text2); font-weight: 400; }
-.dr-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; padding: 2px 7px; border-radius: 2px; }
-.dr-row.kept    .dr-badge { background: var(--green-bg); color: var(--green); }
-.dr-row.removed .dr-badge { background: var(--red-bg);   color: var(--red); }
-
-/* Stats bar inside page */
-.page-stats { display: flex; gap: 8px; margin-bottom: 18px; }
-.p-stat { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 2px; border: 1px solid var(--border); background: var(--white); color: var(--text2); }
-.p-stat.k { background: var(--green-bg); border-color: #b5d6c0; color: var(--green); }
-.p-stat.r { background: var(--red-bg);   border-color: #f5c6c4; color: var(--red); }
-
-.page-footer {
-  margin-top: 32px; border-top: 1px solid var(--border); padding-top: 12px;
-  font-size: 11px; color: #999; font-weight: 300; display: flex; justify-content: space-between;
-}
-
-/* ── FAVICON FALLBACK ── */
-.fav-placeholder {
-  width: 16px; height: 16px; border-radius: 2px; background: var(--chrome-bg);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; color: var(--text2); flex-shrink: 0; text-transform: uppercase;
-}
-</style>
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
+    <div id="root"></div>
 
-<!-- DPM Header -->
-<div class="dpm-bar">
-  <div class="dpm-brand">
-    <div class="dpm-brand-name">Dossani Paradise Management</div>
-    <div class="dpm-brand-sub">Burger King · Bookmark Review</div>
-  </div>
-  <div class="dpm-right" style="font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.05em;">Internal Use Only</div>
-</div>
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        const { 
+            LayoutList, 
+            BarChart3, 
+            ChevronRight, 
+            Check, 
+            Trash2, 
+            Share2, 
+            ArrowLeft, 
+            Info, 
+            HelpCircle, 
+            Plus,
+            RotateCcw,
+            Search,
+            X,
+            Copy,
+            RefreshCw
+        } = LucideReact;
 
-<!-- Chrome Window -->
-<div class="chrome-window">
+        const INITIAL_BOOKMARKS = [
+            { name: "RBI", url: "https://rbi.okta.com/" },
+            { name: "BK Gateway", url: "https://rbi.okta.com/login/login.htm" },
+            { name: "MCP BIG 3", url: "" },
+            { name: "Bench Plan", url: "" },
+            { name: "Restaurant Services", url: "https://www.rsiweb.com/net/public/PubIndex.aspx" },
+            { name: "Paycom", url: "https://www.paycom.com/" },
+            { name: "MGRNG Login", url: "https://192.168.1.80/mgrng/index.php" },
+            { name: "Bitrix24", url: "https://www.bitrix24.com/" },
+            { name: "My Apps", url: "https://rbi.okta.com/app/UserHome" },
+            { name: "Cash Connect", url: "https://www.cashconnect.com/login-notice/" },
+            { name: "Flowers", url: "https://ffomsi.flocorp.com/clientportal/apps/cpOrderEntry.html" },
+            { name: "Zenput", url: "https://www.zenput.com/mobile/" },
+            { name: "Rapid Paycard", url: "https://www.rapidclientportal.com/login" }
+        ].map((b, i) => ({ ...b, keep: true, id: i }));
 
-  <!-- Tab strip -->
-  <div class="chrome-tab-strip">
-    <div class="chrome-dots">
-      <div class="chrome-dot r"></div>
-      <div class="chrome-dot y"></div>
-      <div class="chrome-dot g"></div>
-    </div>
-    <div class="chrome-tab">
-      <img src="https://www.google.com/s2/favicons?domain=burgerking.com&sz=16" onerror="this.style.display='none'" alt="">
-      <span class="chrome-tab-title">BK Bookmarks — DPM Review</span>
-      <div class="chrome-tab-x">✕</div>
-    </div>
-  </div>
+        // ── COMPONENTS ──
 
-  <!-- Address bar -->
-  <div class="chrome-address-row">
-    <button class="chrome-nav-btn" disabled>&#8592;</button>
-    <button class="chrome-nav-btn" disabled>&#8594;</button>
-    <button class="chrome-nav-btn">↻</button>
-    <div class="chrome-omni">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <span>dpm-bk-bookmarks · internal tool</span>
-    </div>
-    <button class="chrome-nav-btn" title="Add bookmark" onclick="openModal()" style="font-size:18px;color:#1a73e8;">&#9733;</button>
-  </div>
+        function LandingPage({ onSelectView }) {
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 fade-in">
+                    <div className="max-w-4xl w-full">
+                        <div className="text-center mb-12">
+                            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 font-serif">
+                                DPM Bookmark Review
+                            </h1>
+                            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                                Choose how you'd like to review your Burger King bookmarks. 
+                                Simple for a quick list, or Advanced for a detailed graphical view.
+                            </p>
+                        </div>
 
-  <!-- BOOKMARKS BAR -->
-  <div class="bookmarks-bar" id="bookmarksBar">
-    <span class="bar-label">Bookmarks bar</span>
-    <div class="drop-line" id="dropLine"></div>
-    <!-- chips injected here -->
-    <button class="add-chip-btn" onclick="openModal()">
-      <span style="font-size:16px;line-height:1;">+</span> Add bookmark
-    </button>
-  </div>
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <button
+                                onClick={() => onSelectView('simple')}
+                                className="group relative bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 text-left transition-all hover:shadow-2xl hover:border-blue-200 hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors">
+                                    <LayoutList className="w-8 h-8 text-blue-600" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-900 mb-3 font-serif">Simple View</h2>
+                                <p className="text-slate-600 mb-6 leading-relaxed">
+                                    Perfect for a quick review. Large buttons and a step-by-step guide 
+                                    to help you keep or remove bookmarks easily.
+                                </p>
+                                <div className="flex items-center text-blue-600 font-semibold">
+                                    Get Started <ChevronRight className="w-4 h-4 ml-1" />
+                                </div>
+                            </button>
 
-  <!-- TRASH ZONE -->
-  <div class="trash-zone" id="trashZone"
-    ondragover="trashDragOver(event)"
-    ondragleave="trashDragLeave(event)"
-    ondrop="trashDrop(event)">
-    <span class="trash-icon">🗑️</span>
-    <span class="trash-label">Drag a bookmark here to remove it</span>
-    <div class="trash-chips" id="trashChips">
-      <span class="trash-empty" id="trashEmpty">Nothing removed yet</span>
-    </div>
-  </div>
+                            <button
+                                onClick={() => onSelectView('advanced')}
+                                className="group relative bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 text-left transition-all hover:shadow-2xl hover:border-indigo-200 hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-100 transition-colors">
+                                    <BarChart3 className="w-8 h-8 text-indigo-600" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-900 mb-3 font-serif">Advanced View</h2>
+                                <p className="text-slate-600 mb-6 leading-relaxed">
+                                    A graphical dashboard showing your bookmark status with 
+                                    detailed analytics and a modern interface.
+                                </p>
+                                <div className="flex items-center text-indigo-600 font-semibold">
+                                    Explore Dashboard <ChevronRight className="w-4 h-4 ml-1" />
+                                </div>
+                            </button>
+                        </div>
 
-  <!-- PAGE BODY -->
-  <div class="page-content">
+                        <div className="mt-16 text-center text-slate-400 text-sm">
+                            Dossani Paradise Management · Internal Tool
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
-    <div class="page-stats" id="pageStats"></div>
+        function SimpleView({ bookmarks, onToggleKeep, onAddBookmark, onBack, onGenerateCode }) {
+            const [showTutorial, setShowTutorial] = useState(false);
+            const [tutorialStep, setTutorialStep] = useState(0);
+            const [showAddModal, setShowAddModal] = useState(false);
+            const [newName, setNewName] = useState('');
+            const [newUrl, setNewUrl] = useState('');
 
-    <!-- Generate code -->
-    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px;">
-      <button class="action-btn primary" onclick="generateCode()">Generate Share Code</button>
-      <span class="action-hint">Encodes your full configuration — works on any device.</span>
-    </div>
+            useEffect(() => {
+                const hasSeenTutorial = localStorage.getItem('hasSeenSimpleTutorial');
+                if (!hasSeenTutorial) {
+                    setShowTutorial(true);
+                }
+            }, []);
 
-    <div class="code-result" id="codeResult">
-      <div class="code-result-label">Your Share Code</div>
-      <div class="code-result-row">
-        <div class="code-val" id="codeVal"></div>
-        <button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy</button>
-      </div>
-      <div class="code-summary" id="codeSummary"></div>
-    </div>
+            const closeTutorial = () => {
+                setShowTutorial(false);
+                localStorage.setItem('hasSeenSimpleTutorial', 'true');
+            };
 
-    <!-- Decode -->
-    <div class="decode-section">
-      <div class="decode-toggle" onclick="toggleDecode()">
-        <span id="decodeArrow">▶</span> Decode a code from someone else
-      </div>
-      <div class="decode-body" id="decodeBody">
-        <div class="decode-row">
-          <input class="decode-input" id="decodeInput" maxlength="12" placeholder="A1B2C3…"
-            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
-            onkeydown="if(event.key==='Enter')decodeCode()">
-          <button class="decode-go" onclick="decodeCode()">Look Up</button>
-        </div>
-        <div class="decode-result" id="decodeResult">
-          <div class="decode-result-inner">
-            <div class="decode-result-head" id="decodeHead"></div>
-            <div class="decode-err-body" id="decodeErr" style="display:none;"></div>
-            <div class="dr-items" id="drItems"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+            const tutorialSteps = [
+                {
+                    title: "Welcome to Simple View!",
+                    content: "This view is designed to be easy to use. Let's walk through how to review your bookmarks.",
+                    icon: <HelpCircle className="w-12 h-12 text-blue-500" />
+                },
+                {
+                    title: "Keep or Delete",
+                    content: "For each bookmark, you can choose to 'Keep' it (green check) or 'Delete' it (red trash).",
+                    icon: <div className="flex gap-4"><Check className="w-10 h-10 text-green-500" /><Trash2 className="w-10 h-10 text-red-500" /></div>
+                },
+                {
+                    title: "Share Your Work",
+                    content: "When you're finished, click the 'Generate Share Code' button at the bottom to share your choices.",
+                    icon: <Share2 className="w-12 h-12 text-indigo-500" />
+                }
+            ];
 
-    <div class="page-footer">
-      <span>Dossani Paradise Management · 520 E. Northwest Hwy Suite 100, Grapevine TX 76051</span>
-      <span>817-442-1159</span>
-    </div>
-  </div>
+            return (
+                <div className="min-h-screen bg-slate-50 pb-24 fade-in">
+                    <header className="bg-white border-b border-slate-200 sticky top-0 z-10 px-4 py-4 md:px-8">
+                        <div className="max-w-4xl mx-auto flex items-center justify-between">
+                            <button onClick={onBack} className="flex items-center text-slate-600 hover:text-slate-900 transition-colors font-medium">
+                                <ArrowLeft className="w-5 h-5 mr-2" />
+                                <span className="hidden sm:inline">Back</span>
+                            </button>
+                            <h1 className="text-xl font-bold text-slate-900 font-serif">Simple Review</h1>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => setShowAddModal(true)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors">
+                                    <Plus className="w-6 h-6" />
+                                </button>
+                                <button onClick={() => setShowTutorial(true)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors">
+                                    <Info className="w-6 h-6" />
+                                </button>
+                            </div>
+                        </div>
+                    </header>
 
-</div><!-- /chrome-window -->
+                    <main className="max-w-4xl mx-auto p-4 md:p-8">
+                        <div className="space-y-4">
+                            {bookmarks.map((bookmark) => (
+                                <div key={bookmark.id} className={`bg-white p-6 rounded-2xl shadow-sm border transition-all ${bookmark.keep ? 'border-slate-100' : 'border-red-100 bg-red-50/30 opacity-75'}`}>
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className={`text-xl font-bold mb-1 truncate ${!bookmark.keep && 'line-through text-slate-400'}`}>
+                                                {bookmark.name}
+                                            </h3>
+                                            <p className="text-slate-500 text-sm truncate">{bookmark.url || 'No URL provided'}</p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button onClick={() => onToggleKeep(bookmark.id, true)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${bookmark.keep ? 'bg-green-500 text-white shadow-lg shadow-green-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>
+                                                <Check className="w-5 h-5" /> Keep
+                                            </button>
+                                            <button onClick={() => onToggleKeep(bookmark.id, false)} className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${!bookmark.keep ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>
+                                                <Trash2 className="w-5 h-5" /> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </main>
 
-<!-- Add Bookmark Modal -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <h3>Add Bookmark</h3>
-    <label>Name</label>
-    <input type="text" id="newName" placeholder="e.g. Payroll Dashboard">
-    <label>URL</label>
-    <input type="text" id="newUrl" placeholder="https://example.com">
-    <div class="modal-btns">
-      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-add" onclick="addBookmark()">Add</button>
-    </div>
-  </div>
-</div>
+                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 md:p-6 shadow-2xl z-10">
+                        <div className="max-w-4xl mx-auto">
+                            <button onClick={onGenerateCode} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 transition-all active:scale-95">
+                                <Share2 className="w-6 h-6" /> Generate Share Code
+                            </button>
+                        </div>
+                    </div>
 
-<script>
-/* ── DATA ── */
-let bookmarks = [
-  { name:"RBI",                       url:"https://rbi.okta.com/" },
-  { name:"BK Gateway",                url:"https://rbi.okta.com/login/login.htm" },
-  { name:"MCP BIG 3",                 url:"" },
-  { name:"Bench Plan",                url:"" },
-  { name:"Restaurant Services",       url:"https://www.rsiweb.com/net/public/PubIndex.aspx" },
-  { name:"Paycom",                    url:"https://www.paycom.com/" },
-  { name:"MGRNG Login",               url:"https://192.168.1.80/mgrng/index.php" },
-  { name:"Bitrix24",                  url:"https://www.bitrix24.com/" },
-  { name:"My Apps",                   url:"https://rbi.okta.com/app/UserHome" },
-  { name:"Cash Connect",              url:"https://www.cashconnect.com/login-notice/" },
-  { name:"Flowers",                   url:"https://ffomsi.flocorp.com/clientportal/apps/cpOrderEntry.html" },
-  { name:"Zenput",                    url:"https://www.zenput.com/mobile/" },
-  { name:"Rapid Paycard",             url:"https://www.rapidclientportal.com/login" }
-].map((b,i)=>({...b, keep:true, id:i}));
+                    {/* Tutorial Modal */}
+                    {showTutorial && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl modal-pop">
+                                <div className="flex justify-center mb-6">{tutorialSteps[tutorialStep].icon}</div>
+                                <h2 className="text-2xl font-bold text-center mb-4 text-slate-900">{tutorialSteps[tutorialStep].title}</h2>
+                                <p className="text-slate-600 text-center text-lg mb-8 leading-relaxed">{tutorialSteps[tutorialStep].content}</p>
+                                <div className="flex gap-4">
+                                    {tutorialStep > 0 && <button onClick={() => setTutorialStep(s => s - 1)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-colors">Back</button>}
+                                    <button onClick={() => tutorialStep < tutorialSteps.length - 1 ? setTutorialStep(s => s + 1) : closeTutorial()} className="flex-2 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all">
+                                        {tutorialStep < tutorialSteps.length - 1 ? 'Next' : 'Got it!'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-let nextId = bookmarks.length;
-let dragId = null;
-let currentCode = '';
+                    {/* Add Modal */}
+                    {showAddModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl modal-pop">
+                                <h2 className="text-2xl font-bold mb-6 text-slate-900">Add New Bookmark</h2>
+                                <div className="space-y-4 mb-8">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Name</label>
+                                        <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Payroll Dashboard" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">URL</label>
+                                        <input type="text" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://example.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-colors">Cancel</button>
+                                    <button onClick={() => { if (newName) { onAddBookmark(newName, newUrl); setNewName(''); setNewUrl(''); setShowAddModal(false); } }} className="flex-1 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
 
-/* ── FAVICON ── */
-function faviconUrl(url) {
-  try { const d = new URL(url).hostname; return `https://www.google.com/s2/favicons?domain=${d}&sz=32`; }
-  catch { return ''; }
-}
+        function AdvancedView({ bookmarks, onToggleKeep, onAddBookmark, onReorder, onBack, onGenerateCode }) {
+            const [dragId, setDragId] = useState(null);
+            const [showAddModal, setShowAddModal] = useState(false);
+            const [newName, setNewName] = useState('');
+            const [newUrl, setNewUrl] = useState('');
 
-function makeFavEl(bk, size=16) {
-  if (bk.url && bk.url.startsWith('http')) {
-    const img = document.createElement('img');
-    img.className = 'favicon';
-    img.style.width = size+'px'; img.style.height = size+'px';
-    img.src = faviconUrl(bk.url);
-    img.onerror = () => { img.replaceWith(makeLetterEl(bk, size)); };
-    return img;
-  }
-  return makeLetterEl(bk, size);
-}
+            const keptCount = bookmarks.filter(b => b.keep).length;
+            const removedCount = bookmarks.length - keptCount;
 
-function makeLetterEl(bk, size=16) {
-  const d = document.createElement('div');
-  d.className = 'fav-placeholder';
-  d.style.width = size+'px'; d.style.height = size+'px'; d.style.fontSize = (size*0.55)+'px';
-  d.textContent = bk.name[0];
-  return d;
-}
+            const handleDragStart = (id) => setDragId(id);
+            const handleDragOver = (e) => e.preventDefault();
+            const handleDrop = (targetId) => {
+                if (dragId === null || dragId === targetId) return;
+                const fromIndex = bookmarks.findIndex(b => b.id === dragId);
+                const toIndex = bookmarks.findIndex(b => b.id === targetId);
+                const newBookmarks = [...bookmarks];
+                const [movedItem] = newBookmarks.splice(fromIndex, 1);
+                newBookmarks.splice(toIndex, 0, movedItem);
+                onReorder(newBookmarks);
+                setDragId(null);
+            };
+            const handleTrashDrop = (e) => {
+                e.preventDefault();
+                if (dragId !== null) { onToggleKeep(dragId, false); setDragId(null); }
+            };
 
-/* ── RENDER BAR ── */
-function render() {
-  const bar = document.getElementById('bookmarksBar');
-  // Remove existing chips (keep label, dropLine, add button)
-  bar.querySelectorAll('.bk-chip').forEach(el => el.remove());
+            const getFavicon = (url) => {
+                if (!url) return null;
+                try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`; }
+                catch { return null; }
+            };
 
-  const addBtn = bar.querySelector('.add-chip-btn');
-  const dropLine = document.getElementById('dropLine');
+            return (
+                <div className="min-h-screen bg-[#e8eaed] font-sans text-[#202124] fade-in">
+                    <div className="bg-[#1a2d4a] border-b-[3px] border-[#c8922a] px-5 h-[52px] flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <div className="font-serif text-sm text-white tracking-tight">Dossani Paradise Management</div>
+                            <div className="text-[10px] font-light text-[#f0d080] tracking-[0.12em] uppercase opacity-85">Burger King · Bookmark Review</div>
+                        </div>
+                        <div className="text-[11px] text-white/35 uppercase tracking-widest">Internal Use Only</div>
+                    </div>
 
-  bookmarks.forEach(bk => {
-    const chip = document.createElement('div');
-    chip.className = 'bk-chip' + (bk.keep ? '' : ' removed');
-    chip.dataset.id = bk.id;
-    chip.draggable = true;
-    chip.title = bk.url || bk.name;
+                    <div className="chrome-window">
+                        <div className="bg-[#dee1e6] h-[38px] flex items-end px-4 relative">
+                            <div className="flex gap-[7px] absolute left-4 top-1/2 -translate-y-1/2">
+                                <div className="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#febc2e]"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#28c840]"></div>
+                            </div>
+                            <div className="ml-16 bg-white rounded-t-lg h-[33px] min-w-[180px] flex items-center px-3 gap-2 text-xs text-[#202124]">
+                                <div className="w-4 h-4 bg-slate-100 rounded-sm flex items-center justify-center text-[10px] font-bold text-slate-400">BK</div>
+                                <span className="flex-1 truncate">BK Bookmarks — DPM Review</span>
+                                <div className="w-4 h-4 rounded-full hover:bg-slate-100 flex items-center justify-center cursor-pointer text-[#5f6368]">✕</div>
+                            </div>
+                        </div>
 
-    const fav = makeFavEl(bk, 16);
-    chip.appendChild(fav);
+                        <div className="bg-white p-2 px-3.5 flex items-center gap-2.5 border-b border-[#dadce0]">
+                            <button className="w-7 h-7 rounded-full hover:bg-[#e8eaed] flex items-center justify-center text-[#5f6368] disabled:opacity-30" onClick={onBack}>
+                                <ArrowLeft className="w-4 h-4" />
+                            </button>
+                            <button className="w-7 h-7 rounded-full hover:bg-[#e8eaed] flex items-center justify-center text-[#5f6368] rotate-180 disabled:opacity-30" disabled>
+                                <ArrowLeft className="w-4 h-4" />
+                            </button>
+                            <button className="w-7 h-7 rounded-full hover:bg-[#e8eaed] flex items-center justify-center text-[#5f6368]">
+                                <RotateCcw className="w-4 h-4" />
+                            </button>
+                            <div className="flex-1 bg-[#e8eaed] rounded-full h-8 flex items-center px-3.5 gap-1.5 text-sm text-[#5f6368]">
+                                <Search className="w-3.5 h-3.5 flex-shrink-0" />
+                                <span className="flex-1 text-[#202124] truncate">dpm-bk-bookmarks · internal tool</span>
+                            </div>
+                            <button onClick={() => setShowAddModal(true)} className="w-7 h-7 rounded-full hover:bg-[#e8eaed] flex items-center justify-center text-[#1a73e8]">
+                                <Plus className="w-5 h-5" />
+                            </button>
+                        </div>
 
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'chip-name';
-    nameSpan.textContent = bk.name;
-    chip.appendChild(nameSpan);
+                        <div className="bg-white border-b border-[#dadce0] p-1 px-2.5 min-h-[36px] flex items-center flex-wrap gap-0.5">
+                            <span className="text-[11px] text-[#5f6368] mr-1 whitespace-nowrap select-none">Bookmarks bar</span>
+                            {bookmarks.map((bk) => (
+                                <div key={bk.id} draggable onDragStart={() => handleDragStart(bk.id)} onDragOver={handleDragOver} onDrop={() => handleDrop(bk.id)} className={`group relative inline-flex items-center gap-1.5 h-7 px-2 rounded hover:bg-[#e8eaed] text-xs text-[#202124] cursor-grab active:cursor-grabbing max-w-[160px] transition-all ${!bk.keep ? 'opacity-45 line-through bg-[#fce8e6] border border-[#f5c6c4]' : ''} ${dragId === bk.id ? 'opacity-25' : ''}`}>
+                                    {getFavicon(bk.url) ? <img src={getFavicon(bk.url)} className="w-4 h-4 rounded-sm flex-shrink-0 object-contain" /> : <div className="w-4 h-4 rounded-sm bg-[#e8eaed] flex items-center justify-center text-[9px] font-bold text-[#5f6368] flex-shrink-0 uppercase">{bk.name[0]}</div>}
+                                    <span className="truncate flex-1">{bk.name}</span>
+                                    <div className="hidden group-hover:flex items-center gap-0.5 ml-0.5">
+                                        <button onClick={(e) => { e.stopPropagation(); onToggleKeep(bk.id, true); }} className={`w-[18px] h-[18px] rounded flex items-center justify-center text-[10px] ${bk.keep ? 'bg-[#1e8a45] text-white' : 'bg-[#e6f4ea] text-[#1e8a45] hover:bg-[#c8e6c9]'}`}>✓</button>
+                                        <button onClick={(e) => { e.stopPropagation(); onToggleKeep(bk.id, false); }} className={`w-[18px] h-[18px] rounded flex items-center justify-center text-[10px] ${!bk.keep ? 'bg-[#c5221f] text-white' : 'bg-[#fce8e6] text-[#c5221f] hover:bg-[#ffcdd2]'}`}>✕</button>
+                                    </div>
+                                </div>
+                            ))}
+                            <button onClick={() => setShowAddModal(true)} className="h-7 px-2.5 rounded border border-dashed border-[#dadce0] hover:bg-[#e8eaed] hover:text-[#202124] text-xs text-[#5f6368] flex items-center gap-1 transition-colors">
+                                <span className="text-base leading-none">+</span> Add bookmark
+                            </button>
+                        </div>
 
-    // Actions
-    const actions = document.createElement('div');
-    actions.className = 'chip-actions';
+                        <div onDragOver={handleDragOver} onDrop={handleTrashDrop} className="bg-white border-b border-dashed border-[#dadce0] p-3 px-4.5 flex items-center gap-3 min-h-[56px] group hover:bg-[#fce8e6] hover:border-[#c5221f] transition-all">
+                            <Trash2 className="w-5 h-5 text-[#5f6368] opacity-35 group-hover:opacity-75 group-hover:scale-110 transition-all" />
+                            <div className="flex-1">
+                                <p className="text-xs text-[#5f6368] font-light group-hover:text-[#c5221f] group-hover:font-normal transition-colors">Drag a bookmark here to remove it</p>
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                    {bookmarks.filter(b => !b.keep).map(bk => (
+                                        <button key={bk.id} onClick={() => onToggleKeep(bk.id, true)} className="inline-flex items-center gap-1.5 h-6 px-2 bg-[#fce8e6] border border-[#f5c6c4] rounded text-[11px] text-[#c5221f] hover:bg-[#fde0de] transition-colors">
+                                            {getFavicon(bk.url) ? <img src={getFavicon(bk.url)} className="w-3.5 h-3.5 rounded-sm" /> : <div className="w-3.5 h-3.5 rounded-sm bg-white flex items-center justify-center text-[8px] font-bold uppercase">{bk.name[0]}</div>}
+                                            <span>{bk.name}</span><span className="text-[#1e8a45] font-bold ml-0.5">↩</span>
+                                        </button>
+                                    ))}
+                                    {bookmarks.filter(b => !b.keep).length === 0 && <span className="text-xs text-[#5f6368] opacity-50 italic">Nothing removed yet</span>}
+                                </div>
+                            </div>
+                        </div>
 
-    const keepBtn = document.createElement('button');
-    keepBtn.className = 'chip-btn keep-btn' + (bk.keep ? ' active' : '');
-    keepBtn.title = 'Keep';
-    keepBtn.innerHTML = '✓';
-    keepBtn.onclick = e => { e.stopPropagation(); setKeep(bk.id, true); };
+                        <div className="bg-[#f1f3f4] p-7 min-h-[340px]">
+                            <div className="flex gap-2 mb-4">
+                                <div className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border border-[#dadce0] bg-white text-[#5f6368]">{bookmarks.length} total</div>
+                                <div className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border border-[#b5d6c0] bg-[#e6f4ea] text-[#1e8a45]">{keptCount} kept</div>
+                                {removedCount > 0 && <div className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-sm border border-[#f5c6c4] bg-[#fce8e6] text-[#c5221f]">{removedCount} removed</div>}
+                            </div>
+                            <div className="flex items-center gap-3.5 flex-wrap mb-1.5">
+                                <button onClick={onGenerateCode} className="bg-[#1a2d4a] hover:bg-[#253e63] text-white text-xs font-semibold uppercase tracking-wider px-5 py-2.5 rounded transition-all">Generate Share Code</button>
+                                <span className="text-xs text-[#5f6368] font-light">Encodes your full configuration — works on any device.</span>
+                            </div>
+                            <div className="mt-8 border-t border-[#dadce0] pt-3 flex justify-between text-[11px] text-[#999] font-light">
+                                <span>Dossani Paradise Management · 520 E. Northwest Hwy Suite 100, Grapevine TX 76051</span>
+                                <span>817-442-1159</span>
+                            </div>
+                        </div>
+                    </div>
 
-    const trashBtn = document.createElement('button');
-    trashBtn.className = 'chip-btn trash-btn' + (!bk.keep ? ' active' : '');
-    trashBtn.title = 'Remove';
-    trashBtn.innerHTML = '✕';
-    trashBtn.onclick = e => { e.stopPropagation(); setKeep(bk.id, false); };
+                    {showAddModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/35 backdrop-blur-[2px]">
+                            <div className="bg-white rounded-lg p-5 w-[360px] shadow-2xl modal-pop">
+                                <h3 className="font-serif text-[15px] font-bold text-[#1a2d4a] mb-3.5">Add Bookmark</h3>
+                                <div className="space-y-3.5 mb-4">
+                                    <div>
+                                        <label className="block text-[11px] font-semibold text-[#5f6368] uppercase tracking-wider mb-1">Name</label>
+                                        <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Payroll Dashboard" className="w-full px-2.5 py-2 border border-[#dadce0] rounded text-sm outline-none focus:border-[#1a2d4a] transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] font-semibold text-[#5f6368] uppercase tracking-wider mb-1">URL</label>
+                                        <input type="text" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://example.com" className="w-full px-2.5 py-2 border border-[#dadce0] rounded text-sm outline-none focus:border-[#1a2d4a] transition-colors" />
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                    <button onClick={() => setShowAddModal(false)} className="px-4 py-1.5 border border-[#dadce0] rounded text-xs text-[#5f6368] hover:bg-[#f1f3f4] transition-colors">Cancel</button>
+                                    <button onClick={() => { if (newName) { onAddBookmark(newName, newUrl); setNewName(''); setNewUrl(''); setShowAddModal(false); } }} className="px-4 py-1.5 bg-[#1a2d4a] text-white rounded text-xs font-semibold hover:bg-[#253e63] transition-colors">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
 
-    actions.appendChild(keepBtn);
-    actions.appendChild(trashBtn);
-    chip.appendChild(actions);
+        function ShareCode({ code, onClose, onDecode }) {
+            const [copied, setCopied] = useState(false);
+            const [inputCode, setInputCode] = useState('');
+            const copyToClipboard = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden modal-pop">
+                        <button onClick={onClose} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 transition-colors"><X className="w-6 h-6" /></button>
+                        <div className="flex justify-center mb-6"><div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600"><Share2 className="w-8 h-8" /></div></div>
+                        <h2 className="text-2xl font-bold text-center mb-2 text-slate-900">Share Your Review</h2>
+                        <p className="text-slate-500 text-center mb-8">Copy this code to share your bookmark choices with others.</p>
+                        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mb-8">
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="flex-1 font-mono text-2xl font-bold tracking-widest text-indigo-600 truncate">{code}</div>
+                                <button onClick={copyToClipboard} className={`p-3 rounded-xl transition-all ${copied ? 'bg-green-500 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-indigo-500 hover:text-indigo-600'}`}>
+                                    {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+                        <div className="border-t border-slate-100 pt-8 mt-4">
+                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Import a Code</h3>
+                            <div className="flex gap-2">
+                                <input type="text" value={inputCode} onChange={(e) => setInputCode(e.target.value.toUpperCase())} placeholder="ENTER CODE" className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-lg tracking-widest focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                                <button onClick={() => onDecode(inputCode)} className="px-4 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors flex items-center gap-2"><RefreshCw className="w-5 h-5" />Load</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
-    // Drag events
-    chip.ondragstart = e => {
-      dragId = bk.id;
-      chip.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    };
-    chip.ondragend = () => {
-      chip.classList.remove('dragging');
-      dragId = null;
-      bar.querySelectorAll('.bk-chip').forEach(c => c.classList.remove('drag-target'));
-      dropLine.classList.remove('active');
-    };
-    chip.ondragover = e => {
-      e.preventDefault();
-      bar.querySelectorAll('.bk-chip').forEach(c => c.classList.remove('drag-target'));
-      chip.classList.add('drag-target');
-    };
-    chip.ondrop = e => {
-      e.preventDefault();
-      chip.classList.remove('drag-target');
-      if (dragId === null || dragId === bk.id) return;
-      reorder(dragId, bk.id);
-    };
+        // ── MAIN APP ──
 
-    bar.insertBefore(chip, addBtn);
-  });
+        function App() {
+            const [viewMode, setViewMode] = useState('landing');
+            const [bookmarks, setBookmarks] = useState(INITIAL_BOOKMARKS);
+            const [shareCode, setShareCode] = useState(null);
 
-  renderTrash();
-  updateStats();
-}
+            useEffect(() => {
+                const saved = localStorage.getItem('dpm_bookmarks');
+                if (saved) { try { setBookmarks(JSON.parse(saved)); } catch (e) {} }
+            }, []);
 
-/* ── KEEP / REMOVE ── */
-function setKeep(id, val) {
-  const bk = bookmarks.find(b=>b.id===id);
-  if (!bk) return;
-  bk.keep = val;
-  clearCode();
-  render();
-}
+            useEffect(() => { localStorage.setItem('dpm_bookmarks', JSON.stringify(bookmarks)); }, [bookmarks]);
 
-/* ── REORDER ── */
-function reorder(fromId, toId) {
-  const fi = bookmarks.findIndex(b=>b.id===fromId);
-  const ti = bookmarks.findIndex(b=>b.id===toId);
-  if (fi<0||ti<0) return;
-  const [item] = bookmarks.splice(fi, 1);
-  bookmarks.splice(ti, 0, item);
-  clearCode();
-  render();
-}
+            const handleToggleKeep = (id, keep) => setBookmarks(prev => prev.map(b => b.id === id ? { ...b, keep } : b));
+            const handleAddBookmark = (name, url) => setBookmarks(prev => [...prev, { id: Date.now(), name, url, keep: true }]);
+            const handleReorder = (newBks) => setBookmarks(newBks);
+            const handleGenerateCode = () => {
+                const data = bookmarks.map(b => ({ n: b.name, u: b.url, k: b.keep ? 1 : 0 }));
+                setShareCode(btoa(JSON.stringify(data)));
+            };
+            const handleDecode = (code) => {
+                try {
+                    const data = JSON.parse(atob(code));
+                    setBookmarks(data.map((item, i) => ({ id: Date.now() + i, name: item.n, url: item.u, keep: item.k === 1 })));
+                    setShareCode(null);
+                    alert('Loaded!');
+                } catch (e) { alert('Invalid code'); }
+            };
 
-/* ── TRASH ZONE ── */
-function trashDragOver(e) {
-  e.preventDefault();
-  document.getElementById('trashZone').classList.add('drag-over');
-}
-function trashDragLeave(e) {
-  document.getElementById('trashZone').classList.remove('drag-over');
-}
-function trashDrop(e) {
-  e.preventDefault();
-  document.getElementById('trashZone').classList.remove('drag-over');
-  if (dragId !== null) { setKeep(dragId, false); }
-}
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+                    {viewMode === 'landing' && <LandingPage onSelectView={setViewMode} />}
+                    {viewMode === 'simple' && <SimpleView bookmarks={bookmarks} onToggleKeep={handleToggleKeep} onAddBookmark={handleAddBookmark} onBack={() => setViewMode('landing')} onGenerateCode={handleGenerateCode} />}
+                    {viewMode === 'advanced' && <AdvancedView bookmarks={bookmarks} onToggleKeep={handleToggleKeep} onAddBookmark={handleAddBookmark} onReorder={handleReorder} onBack={() => setViewMode('landing')} onGenerateCode={handleGenerateCode} />}
+                    {shareCode && <ShareCode code={shareCode} onClose={() => setShareCode(null)} onDecode={handleDecode} />}
+                </div>
+            );
+        }
 
-function renderTrash() {
-  const removed = bookmarks.filter(b => !b.keep);
-  const tc = document.getElementById('trashChips');
-  const te = document.getElementById('trashEmpty');
-  tc.innerHTML = '';
-  if (!removed.length) {
-    te.style.display = 'inline';
-    return;
-  }
-  te.style.display = 'none';
-  removed.forEach(bk => {
-    const chip = document.createElement('div');
-    chip.className = 'trash-chip';
-    chip.title = 'Click to restore';
-    const fav = makeFavEl(bk, 13);
-    chip.appendChild(fav);
-    const nm = document.createElement('span');
-    nm.textContent = bk.name;
-    chip.appendChild(nm);
-    const rx = document.createElement('span');
-    rx.className = 'restore-x';
-    rx.textContent = '↩';
-    chip.appendChild(rx);
-    chip.onclick = () => setKeep(bk.id, true);
-    tc.appendChild(chip);
-  });
-}
-
-/* ── STATS ── */
-function updateStats() {
-  const k = bookmarks.filter(b=>b.keep).length;
-  const r = bookmarks.length - k;
-  document.getElementById('pageStats').innerHTML =
-    `<div class="p-stat">${bookmarks.length} total</div>`+
-    `<div class="p-stat k">${k} kept</div>`+
-    (r ? `<div class="p-stat r">${r} removed</div>` : '');
-}
-
-/* ── ADD BOOKMARK ── */
-function openModal() {
-  document.getElementById('modalOverlay').classList.add('open');
-  setTimeout(()=>document.getElementById('newName').focus(), 80);
-}
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  document.getElementById('newName').value = '';
-  document.getElementById('newUrl').value = '';
-}
-function addBookmark() {
-  const name = document.getElementById('newName').value.trim();
-  const url  = document.getElementById('newUrl').value.trim();
-  if (!name) { document.getElementById('newName').focus(); return; }
-  bookmarks.push({ name, url: url || '', keep: true, id: nextId++ });
-  clearCode();
-  closeModal();
-  render();
-}
-document.getElementById('newUrl').addEventListener('keydown', e => { if(e.key==='Enter') addBookmark(); });
-
-/* ── ENCODING (self-contained) ── */
-const _fc=[BigInt(1)];
-function fact(n){for(let i=_fc.length;i<=n;i++)_fc.push(_fc[i-1]*BigInt(i));return _fc[n];}
-function permToInt(p){const a=[...Array(p.length).keys()];let r=BigInt(0);for(let i=0;i<p.length;i++){const pos=a.indexOf(p[i]);r+=BigInt(pos)*fact(p.length-1-i);a.splice(pos,1);}return r;}
-function intToPerm(num,n){const a=[...Array(n).keys()],p=[];for(let i=n-1;i>=0;i--){const f=fact(i),pos=Number(num/f);p.push(a[pos]);a.splice(pos,1);num=num%f;}return p;}
-const B36='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-function toB36(n){if(n===BigInt(0))return'0';let s='';const b=BigInt(36);while(n>0){s=B36[Number(n%b)]+s;n=n/b;}return s;}
-function fromB36(s){let n=BigInt(0);const b=BigInt(36);for(const c of s.toUpperCase())n=n*b+BigInt(B36.indexOf(c));return n;}
-
-// Encode: capture base bookmarks order+keep. Custom-added ones stored in sessionStorage keyed by code.
-const BASE_N = 13; // original 13 bookmarks
-
-function encodeState() {
-  // Only encode the base 13; track which are kept and their order among base items
-  const baseInState = bookmarks.filter(b => b.id < BASE_N);
-  const order = baseInState.map(b => b.id);
-  const mask  = baseInState.reduce((a,b,i) => a|(b.keep ? 1<<i : 0), 0);
-  const code  = (toB36(permToInt(order)).padStart(7,'0') + mask.toString(36).toUpperCase().padStart(3,'0')).toUpperCase();
-  // Store extras in sessionStorage
-  const extras = bookmarks.filter(b=>b.id>=BASE_N).map(b=>({name:b.name,url:b.url,keep:b.keep}));
-  try { sessionStorage.setItem('dpm_ext_'+code, JSON.stringify(extras)); } catch(e){}
-  return code;
-}
-
-function decodeStateCode(code) {
-  const c = code.toUpperCase().replace(/[^0-9A-Z]/g,'');
-  if (c.length < 10) return null;
-  const pi = fromB36(c.slice(0,7));
-  if (pi >= fact(BASE_N)) return null;
-  const order = intToPerm(pi, BASE_N);
-  const mask  = parseInt(c.slice(7,10), 36);
-
-  const BASE_BK = [
-    { name:"RBI",                       url:"https://rbi.okta.com/" },
-    { name:"BK Gateway",                url:"https://rbi.okta.com/login/login.htm" },
-    { name:"MCP BIG 3",                 url:"" },
-    { name:"Bench Plan",                url:"" },
-    { name:"Restaurant Services",       url:"https://www.rsiweb.com/net/public/PubIndex.aspx" },
-    { name:"Paycom",                    url:"https://www.paycom.com/" },
-    { name:"MGRNG Login",               url:"https://192.168.1.80/mgrng/index.php" },
-    { name:"Bitrix24",                  url:"https://www.bitrix24.com/" },
-    { name:"My Apps",                   url:"https://rbi.okta.com/app/UserHome" },
-    { name:"Cash Connect",              url:"https://www.cashconnect.com/login-notice/" },
-    { name:"Flowers",                   url:"https://ffomsi.flocorp.com/clientportal/apps/cpOrderEntry.html" },
-    { name:"Zenput",                    url:"https://www.zenput.com/mobile/" },
-    { name:"Rapid Paycard",             url:"https://www.rapidclientportal.com/login" }
-  ];
-
-  const result = order.map((oi,i) => ({ ...BASE_BK[oi], keep: !!(mask & (1<<i)) }));
-  try {
-    const extras = JSON.parse(sessionStorage.getItem('dpm_ext_'+c)||'[]');
-    extras.forEach(e => result.push(e));
-  } catch(e){}
-  return result;
-}
-
-function clearCode() {
-  document.getElementById('codeResult').classList.remove('visible');
-}
-
-function generateCode() {
-  currentCode = encodeState();
-  document.getElementById('codeVal').textContent = currentCode;
-  const k=bookmarks.filter(b=>b.keep).length, r=bookmarks.filter(b=>!b.keep).length;
-  const reord = bookmarks.filter(b=>b.id<BASE_N).some((b,i,arr)=> arr[i].id !== i);
-  let s = `<strong>${k} of ${bookmarks.length}</strong> bookmarks kept`;
-  if(r) s += ` &mdash; <strong>${r}</strong> removed`;
-  if(reord) s += ' &mdash; custom order saved';
-  document.getElementById('codeSummary').innerHTML = s+'.';
-  const cr = document.getElementById('codeResult');
-  cr.classList.remove('visible');
-  requestAnimationFrame(()=>cr.classList.add('visible'));
-  document.getElementById('copyBtn').textContent='Copy';
-  document.getElementById('copyBtn').classList.remove('done');
-}
-
-function copyCode() {
-  navigator.clipboard.writeText(currentCode).then(()=>{
-    const btn=document.getElementById('copyBtn');
-    btn.textContent='Copied!'; btn.classList.add('done');
-    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2200);
-  });
-}
-
-/* ── DECODE ── */
-let decodeOpen = false;
-function toggleDecode() {
-  decodeOpen = !decodeOpen;
-  document.getElementById('decodeBody').classList.toggle('open', decodeOpen);
-  document.getElementById('decodeArrow').textContent = decodeOpen ? '▼' : '▶';
-}
-
-function decodeCode() {
-  const code = document.getElementById('decodeInput').value.trim();
-  const res  = document.getElementById('decodeResult');
-  const head = document.getElementById('decodeHead');
-  const err  = document.getElementById('decodeErr');
-  const items= document.getElementById('drItems');
-  res.classList.remove('visible','error'); err.style.display='none'; items.innerHTML='';
-
-  if (code.length < 10) {
-    head.textContent='Invalid Code'; err.style.display='block'; err.textContent='Please enter the full 10+ character code.';
-    res.classList.add('visible','error'); return;
-  }
-  const result = decodeStateCode(code);
-  if (!result) {
-    head.textContent='Could Not Decode'; err.style.display='block'; err.textContent='This code appears to be invalid or corrupted.';
-    res.classList.add('visible','error'); return;
-  }
-  head.textContent=`Code: ${code.toUpperCase()} — ${result.filter(b=>b.keep).length} of ${result.length} kept`;
-  result.forEach((b,i)=>{
-    const row=document.createElement('div'); row.className='dr-row '+(b.keep?'kept':'removed');
-    const fav=makeFavEl({...b,name:b.name}, 14);
-    row.innerHTML=`<span class="dr-num">${i+1}</span>`;
-    row.appendChild(fav);
-    row.innerHTML+=`<span class="dr-name">${b.name}</span><span class="dr-badge">${b.keep?'Keep':'Remove'}</span>`;
-    items.appendChild(row);
-  });
-  res.classList.remove('visible'); requestAnimationFrame(()=>res.classList.add('visible'));
-}
-
-render();
-</script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
