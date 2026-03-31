@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DPM · BK Bookmark Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:      #1a2d4a;
+  --navy2:     #253e63;
+  --gold:      #c8922a;
+  --gold-lt:   #f0d080;
+  --white:     #ffffff;
+  --off:       #f1f3f4;
+  --chrome-bar:#f1f3f4;
+  --chrome-bg: #e8eaed;
+  --chrome-top:#dee1e6;
+  --text:      #202124;
+  --text2:     #5f6368;
+  --border:    #dadce0;
+  --green:     #1e8a45;
+  --green-bg:  #e6f4ea;
+  --red:       #c5221f;
+  --red-bg:    #fce8e6;
+  --blue:      #1a73e8;
+  --sans:      'Open Sans', sans-serif;
+  --serif:     'Merriweather', Georgia, serif;
+  --radius:    4px;
+  --chip-h:    28px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: #e8eaed; min-height: 100vh; }
+
+/* ── DPM TOP BAR ── */
+.dpm-bar {
+  background: var(--navy);
+  border-bottom: 3px solid var(--gold);
+  padding: 0 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dpm-brand { display: flex; flex-direction: column; gap: 1px; }
+.dpm-brand-name { font-family: var(--serif); font-size: 14px; color: #fff; letter-spacing: 0.01em; }
+.dpm-brand-sub  { font-size: 10px; font-weight: 300; color: var(--gold-lt); letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+.dpm-right { display: flex; gap: 10px; align-items: center; }
+
+/* ── CHROME WINDOW CHROME ── */
+.chrome-window {
+  max-width: 900px;
+  margin: 24px auto;
+  border-radius: 10px 10px 6px 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  overflow: visible;
+  background: var(--white);
+}
+
+/* Tab strip */
+.chrome-tab-strip {
+  background: var(--chrome-top);
+  border-radius: 10px 10px 0 0;
+  height: 38px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 80px 0 16px;
+  position: relative;
+}
+.chrome-tab {
+  background: var(--white);
+  border-radius: 8px 8px 0 0;
+  height: 33px;
+  min-width: 180px;
+  max-width: 240px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 12px;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 400;
+  position: relative;
+  flex: 1;
+}
+.chrome-tab img { width: 16px; height: 16px; border-radius: 2px; }
+.chrome-tab-title { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
+.chrome-tab-x { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 11px; }
+.chrome-tab-x:hover { background: var(--chrome-bg); }
+.chrome-dots {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  display: flex; gap: 7px;
+}
+.chrome-dot { width: 12px; height: 12px; border-radius: 50%; }
+.chrome-dot.r { background: #ff5f57; }
+.chrome-dot.y { background: #febc2e; }
+.chrome-dot.g { background: #28c840; }
+
+/* Address bar row */
+.chrome-address-row {
+  background: var(--white);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.chrome-nav-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 14px;
+}
+.chrome-nav-btn:hover { background: var(--chrome-bg); }
+.chrome-nav-btn:disabled { opacity: 0.35; cursor: default; }
+.chrome-omni {
+  flex: 1; background: var(--chrome-bg); border-radius: 20px; height: 32px;
+  display: flex; align-items: center; padding: 0 14px; gap: 6px;
+  font-size: 13px; color: var(--text2); cursor: text;
+}
+.chrome-omni svg { flex-shrink: 0; }
+.chrome-omni span { flex: 1; color: var(--text); }
+
+/* ── BOOKMARKS BAR ── */
+.bookmarks-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 3px 10px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  position: relative;
+}
+.bar-label {
+  font-size: 11px; color: var(--text2); margin-right: 4px; white-space: nowrap; user-select: none;
+}
+
+/* Bookmark chip */
+.bk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: var(--chip-h);
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: grab;
+  user-select: none;
+  white-space: nowrap;
+  max-width: 160px;
+  border: 1px solid transparent;
+  transition: background 0.1s, border-color 0.1s, opacity 0.15s;
+  position: relative;
+}
+.bk-chip:hover { background: var(--chrome-bg); }
+.bk-chip.dragging { opacity: 0.25; cursor: grabbing; }
+.bk-chip.drag-target { border-color: var(--blue); background: #e8f0fe; }
+
+.bk-chip img.favicon {
+  width: 16px; height: 16px; border-radius: 2px; flex-shrink: 0;
+  object-fit: contain;
+}
+.bk-chip .chip-name {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+}
+
+/* Keep / Remove toggle buttons ON the chip */
+.chip-actions {
+  display: none;
+  gap: 2px;
+  align-items: center;
+  margin-left: 2px;
+}
+.bk-chip:hover .chip-actions { display: flex; }
+
+.chip-btn {
+  width: 18px; height: 18px; border-radius: 3px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 10px; flex-shrink: 0;
+  transition: background 0.12s;
+}
+.chip-btn.keep-btn  { background: var(--green-bg); color: var(--green); }
+.chip-btn.keep-btn:hover  { background: #c8e6c9; }
+.chip-btn.keep-btn.active { background: var(--green); color: #fff; }
+.chip-btn.trash-btn { background: var(--red-bg); color: var(--red); }
+.chip-btn.trash-btn:hover { background: #ffcdd2; }
+.chip-btn.trash-btn.active { background: var(--red); color: #fff; }
+
+/* Chips in the removed state */
+.bk-chip.removed {
+  opacity: 0.45;
+  text-decoration: line-through;
+  background: var(--red-bg) !important;
+  border-color: #f5c6c4;
+}
+.bk-chip.removed .chip-actions { display: flex; }
+
+/* Drop zone indicator */
+.drop-line {
+  display: none;
+  width: 2px; min-height: var(--chip-h); background: var(--blue);
+  border-radius: 1px; flex-shrink: 0; pointer-events: none;
+}
+.drop-line.active { display: block; }
+
+/* Add bookmark button */
+.add-chip-btn {
+  height: var(--chip-h); padding: 0 10px; border-radius: 4px;
+  border: 1px dashed var(--border); background: transparent;
+  font-size: 12px; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 4px;
+  white-space: nowrap; transition: background 0.12s;
+}
+.add-chip-btn:hover { background: var(--chrome-bg); color: var(--text); border-color: #bbb; }
+
+/* ── TRASH ZONE ── */
+.trash-zone {
+  background: var(--white);
+  border: 2px dashed var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+}
+.trash-zone.drag-over {
+  background: var(--red-bg);
+  border-color: var(--red);
+}
+.trash-icon {
+  font-size: 22px; opacity: 0.35; flex-shrink: 0; pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.trash-zone.drag-over .trash-icon { opacity: 0.75; transform: scale(1.15); }
+.trash-label {
+  font-size: 12px; color: var(--text2); font-weight: 300; flex: 1; pointer-events: none;
+}
+.trash-zone.drag-over .trash-label { color: var(--red); font-weight: 400; }
+.trash-chips {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.trash-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 24px; padding: 0 8px;
+  background: var(--red-bg); border: 1px solid #f5c6c4; border-radius: 4px;
+  font-size: 11px; color: var(--red); cursor: pointer;
+  transition: background 0.12s;
+}
+.trash-chip:hover { background: #fde0de; }
+.trash-chip img { width: 13px; height: 13px; border-radius: 2px; }
+.trash-chip .restore-x { font-size: 13px; color: var(--green); font-weight: 700; margin-left: 2px; }
+.trash-empty { font-size: 12px; color: var(--text2); opacity: 0.5; font-style: italic; }
+
+/* ── PAGE CONTENT AREA ── */
+.page-content {
+  background: var(--off);
+  border-radius: 0 0 6px 6px;
+  padding: 28px 24px;
+  min-height: 340px;
+}
+
+/* ── ADD BOOKMARK MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35); z-index: 100;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 8px; padding: 20px 22px;
+  width: 360px; box-shadow: 0 8px 30px rgba(0,0,0,0.22);
+  animation: popIn 0.18s ease;
+}
+@keyframes popIn { from { opacity:0; transform:scale(0.94); } to { opacity:1; transform:none; } }
+.modal h3 { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+.modal label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.modal input {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; font-family: var(--sans);
+  margin-bottom: 12px; outline: none; transition: border-color 0.15s;
+}
+.modal input:focus { border-color: var(--navy); }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+.modal-cancel {
+  padding: 7px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: transparent; font-size: 12px; cursor: pointer; color: var(--text2); font-family: var(--sans);
+}
+.modal-cancel:hover { background: var(--chrome-bg); }
+.modal-add {
+  padding: 7px 18px; background: var(--navy); color: #fff; border: none;
+  border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--sans);
+}
+.modal-add:hover { background: var(--navy2); }
+
+/* ── BOTTOM ACTION BAR ── */
+.action-bar {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 0 0 6px 6px;
+}
+.action-btn {
+  font-family: var(--sans); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 9px 20px; border-radius: var(--radius); cursor: pointer;
+  transition: all 0.14s;
+}
+.action-btn.primary { background: var(--navy); color: #fff; border: none; }
+.action-btn.primary:hover { background: var(--navy2); }
+.action-btn.secondary { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+.action-btn.secondary:hover { background: var(--chrome-bg); color: var(--text); }
+.action-hint { font-size: 12px; color: var(--text2); font-weight: 300; flex: 1; }
+
+/* Code result */
+.code-result {
+  display: none; background: var(--navy); border-radius: var(--radius);
+  padding: 14px 18px; margin-top: 16px; animation: fadeUp 0.2s ease;
+}
+.code-result.visible { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; none; } }
+.code-result-label { font-size: 10px; color: var(--gold-lt); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; opacity: 0.75; }
+.code-result-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.code-val {
+  font-family: 'Courier New', monospace; font-size: 26px; font-weight: 700;
+  letter-spacing: 0.2em; color: var(--gold-lt); flex: 1; user-select: all;
+}
+.copy-btn {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.25);
+  background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.14s;
+}
+.copy-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+.copy-btn.done { border-color: var(--gold); color: var(--gold-lt); background: rgba(200,146,42,0.15); }
+.code-summary { font-size: 11px; color: rgba(255,255,255,0.42); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; }
+.code-summary strong { color: rgba(255,255,255,0.65); }
+
+/* ── DECODE SECTION ── */
+.decode-section { margin-top: 22px; }
+.decode-toggle {
+  font-size: 12px; color: var(--blue); cursor: pointer; user-select: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.decode-toggle:hover { text-decoration: underline; }
+.decode-body { display: none; margin-top: 14px; }
+.decode-body.open { display: block; }
+.decode-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.decode-input {
+  font-family: 'Courier New', monospace; font-size: 18px; font-weight: 700; letter-spacing: 0.15em;
+  padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--navy); background: var(--white); width: 200px; text-transform: uppercase; outline: none;
+}
+.decode-input:focus { border-color: var(--navy); }
+.decode-go { padding: 8px 18px; background: var(--navy); color: #fff; border: none; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--sans); }
+.decode-go:hover { background: var(--navy2); }
+
+.decode-result { display: none; }
+.decode-result.visible { display: block; animation: fadeUp 0.18s ease; }
+.decode-result-inner {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--white); overflow: hidden;
+}
+.decode-result-head {
+  background: var(--navy); padding: 9px 14px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gold-lt);
+}
+.decode-result.error .decode-result-inner { border-color: #f5c6c4; }
+.decode-result.error .decode-result-head { background: var(--red); color: #fff; }
+.decode-err-body { padding: 12px 14px; font-size: 13px; color: var(--red); }
+.dr-items { display: flex; flex-direction: column; }
+.dr-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; border-bottom: 1px solid #f1f3f4; font-size: 12px;
+}
+.dr-row:last-child { border-bottom: none; }
+.dr-row.removed { opacity: 0.45; }
+.dr-row img { width: 14px; height: 14px; border-radius: 2px; }
+.dr-num { font-size: 10px; color: #bbb; width: 16px; font-family: monospace; }
+.dr-name { flex: 1; font-weight: 600; color: var(--navy); }
+.dr-row.removed .dr-name { text-decoration: line-through; color: var(--text2); font-weight: 400; }
+.dr-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; padding: 2px 7px; border-radius: 2px; }
+.dr-row.kept    .dr-badge { background: var(--green-bg); color: var(--green); }
+.dr-row.removed .dr-badge { background: var(--red-bg);   color: var(--red); }
+
+/* Stats bar inside page */
+.page-stats { display: flex; gap: 8px; margin-bottom: 18px; }
+.p-stat { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 2px; border: 1px solid var(--border); background: var(--white); color: var(--text2); }
+.p-stat.k { background: var(--green-bg); border-color: #b5d6c0; color: var(--green); }
+.p-stat.r { background: var(--red-bg);   border-color: #f5c6c4; color: var(--red); }
+
+.page-footer {
+  margin-top: 32px; border-top: 1px solid var(--border); padding-top: 12px;
+  font-size: 11px; color: #999; font-weight: 300; display: flex; justify-content: space-between;
+}
+
+/* ── FAVICON FALLBACK ── */
+.fav-placeholder {
+  width: 16px; height: 16px; border-radius: 2px; background: var(--chrome-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--text2); flex-shrink: 0; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- DPM Header -->
+<div class="dpm-bar">
+  <div class="dpm-brand">
+    <div class="dpm-brand-name">Dossani Paradise Management</div>
+    <div class="dpm-brand-sub">Burger King · Bookmark Review</div>
+  </div>
+  <div class="dpm-right" style="font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.05em;">Internal Use Only</div>
+</div>
+
+<!-- Chrome Window -->
+<div class="chrome-window">
+
+  <!-- Tab strip -->
+  <div class="chrome-tab-strip">
+    <div class="chrome-dots">
+      <div class="chrome-dot r"></div>
+      <div class="chrome-dot y"></div>
+      <div class="chrome-dot g"></div>
+    </div>
+    <div class="chrome-tab">
+      <img src="https://www.google.com/s2/favicons?domain=burgerking.com&sz=16" onerror="this.style.display='none'" alt="">
+      <span class="chrome-tab-title">BK Bookmarks — DPM Review</span>
+      <div class="chrome-tab-x">✕</div>
+    </div>
+  </div>
+
+  <!-- Address bar -->
+  <div class="chrome-address-row">
+    <button class="chrome-nav-btn" disabled>&#8592;</button>
+    <button class="chrome-nav-btn" disabled>&#8594;</button>
+    <button class="chrome-nav-btn">↻</button>
+    <div class="chrome-omni">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>dpm-bk-bookmarks · internal tool</span>
+    </div>
+    <button class="chrome-nav-btn" title="Add bookmark" onclick="openModal()" style="font-size:18px;color:#1a73e8;">&#9733;</button>
+  </div>
+
+  <!-- BOOKMARKS BAR -->
+  <div class="bookmarks-bar" id="bookmarksBar">
+    <span class="bar-label">Bookmarks bar</span>
+    <div class="drop-line" id="dropLine"></div>
+    <!-- chips injected here -->
+    <button class="add-chip-btn" onclick="openModal()">
+      <span style="font-size:16px;line-height:1;">+</span> Add bookmark
+    </button>
+  </div>
+
+  <!-- TRASH ZONE -->
+  <div class="trash-zone" id="trashZone"
+    ondragover="trashDragOver(event)"
+    ondragleave="trashDragLeave(event)"
+    ondrop="trashDrop(event)">
+    <span class="trash-icon">🗑️</span>
+    <span class="trash-label">Drag a bookmark here to remove it</span>
+    <div class="trash-chips" id="trashChips">
+      <span class="trash-empty" id="trashEmpty">Nothing removed yet</span>
+    </div>
+  </div>
+
+  <!-- PAGE BODY -->
+  <div class="page-content">
+
+    <div class="page-stats" id="pageStats"></div>
+
+    <!-- Generate code -->
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px;">
+      <button class="action-btn primary" onclick="generateCode()">Generate Share Code</button>
+      <span class="action-hint">Encodes your full configuration — works on any device.</span>
+    </div>
+
+    <div class="code-result" id="codeResult">
+      <div class="code-result-label">Your Share Code</div>
+      <div class="code-result-row">
+        <div class="code-val" id="codeVal"></div>
+        <button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy</button>
+      </div>
+      <div class="code-summary" id="codeSummary"></div>
+    </div>
+
+    <!-- Decode -->
+    <div class="decode-section">
+      <div class="decode-toggle" onclick="toggleDecode()">
+        <span id="decodeArrow">▶</span> Decode a code from someone else
+      </div>
+      <div class="decode-body" id="decodeBody">
+        <div class="decode-row">
+          <input class="decode-input" id="decodeInput" maxlength="12" placeholder="A1B2C3…"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+            onkeydown="if(event.key==='Enter')decodeCode()">
+          <button class="decode-go" onclick="decodeCode()">Look Up</button>
+        </div>
+        <div class="decode-result" id="decodeResult">
+          <div class="decode-result-inner">
+            <div class="decode-result-head" id="decodeHead"></div>
+            <div class="decode-err-body" id="decodeErr" style="display:none;"></div>
+            <div class="dr-items" id="drItems"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Dossani Paradise Management · 520 E. Northwest Hwy Suite 100, Grapevine TX 76051</span>
+      <span>817-442-1159</span>
+    </div>
+  </div>
+
+</div><!-- /chrome-window -->
+
+<!-- Add Bookmark Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>Add Bookmark</h3>
+    <label>Name</label>
+    <input type="text" id="newName" placeholder="e.g. Payroll Dashboard">
+    <label>URL</label>
+    <input type="text" id="newUrl" placeholder="https://example.com">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-add" onclick="addBookmark()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+let bookmarks = [
+  { name:"RBI",                       url:"https://rbi.okta.com/" },
+  { name:"BK Gateway",                url:"https://rbi.okta.com/login/login.htm" },
+  { name:"MCP BIG 3",                 url:"" },
+  { name:"Bench Plan",                url:"" },
+  { name:"Restaurant Services",       url:"https://www.rsiweb.com/net/public/PubIndex.aspx" },
+  { name:"Paycom",                    url:"https://www.paycom.com/" },
+  { name:"MGRNG Login",               url:"https://192.168.1.80/mgrng/index.php" },
+  { name:"Bitrix24",                  url:"https://www.bitrix24.com/" },
+  { name:"My Apps",                   url:"https://rbi.okta.com/app/UserHome" },
+  { name:"Cash Connect",              url:"https://www.cashconnect.com/login-notice/" },
+  { name:"Flowers",                   url:"https://ffomsi.flocorp.com/clientportal/apps/cpOrderEntry.html" },
+  { name:"Zenput",                    url:"https://www.zenput.com/mobile/" },
+  { name:"Rapid Paycard",             url:"https://www.rapidclientportal.com/login" }
+].map((b,i)=>({...b, keep:true, id:i}));
+
+let nextId = bookmarks.length;
+let dragId = null;
+let currentCode = '';
+
+/* ── FAVICON ── */
+function faviconUrl(url) {
+  try { const d = new URL(url).hostname; return `https://www.google.com/s2/favicons?domain=${d}&sz=32`; }
+  catch { return ''; }
+}
+
+function makeFavEl(bk, size=16) {
+  if (bk.url && bk.url.startsWith('http')) {
+    const img = document.createElement('img');
+    img.className = 'favicon';
+    img.style.width = size+'px'; img.style.height = size+'px';
+    img.src = faviconUrl(bk.url);
+    img.onerror = () => { img.replaceWith(makeLetterEl(bk, size)); };
+    return img;
+  }
+  return makeLetterEl(bk, size);
+}
+
+function makeLetterEl(bk, size=16) {
+  const d = document.createElement('div');
+  d.className = 'fav-placeholder';
+  d.style.width = size+'px'; d.style.height = size+'px'; d.style.fontSize = (size*0.55)+'px';
+  d.textContent = bk.name[0];
+  return d;
+}
+
+/* ── RENDER BAR ── */
+function render() {
+  const bar = document.getElementById('bookmarksBar');
+  // Remove existing chips (keep label, dropLine, add button)
+  bar.querySelectorAll('.bk-chip').forEach(el => el.remove());
+
+  const addBtn = bar.querySelector('.add-chip-btn');
+  const dropLine = document.getElementById('dropLine');
+
+  bookmarks.forEach(bk => {
+    const chip = document.createElement('div');
+    chip.className = 'bk-chip' + (bk.keep ? '' : ' removed');
+    chip.dataset.id = bk.id;
+    chip.draggable = true;
+    chip.title = bk.url || bk.name;
+
+    const fav = makeFavEl(bk, 16);
+    chip.appendChild(fav);
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'chip-name';
+    nameSpan.textContent = bk.name;
+    chip.appendChild(nameSpan);
+
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'chip-actions';
+
+    const keepBtn = document.createElement('button');
+    keepBtn.className = 'chip-btn keep-btn' + (bk.keep ? ' active' : '');
+    keepBtn.title = 'Keep';
+    keepBtn.innerHTML = '✓';
+    keepBtn.onclick = e => { e.stopPropagation(); setKeep(bk.id, true); };
+
+    const trashBtn = document.createElement('button');
+    trashBtn.className = 'chip-btn trash-btn' + (!bk.keep ? ' active' : '');
+    trashBtn.title = 'Remove';
+    trashBtn.innerHTML = '✕';
+    trashBtn.onclick = e => { e.stopPropagation(); setKeep(bk.id, false); };
+
+    actions.appendChild(keepBtn);
+    actions.appendChild(trashBtn);
+    chip.appendChild(actions);
+
+    // Drag events
+    chip.ondragstart = e => {
+      dragId = bk.id;
+      chip.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    };
+    chip.ondragend = () => {
+      chip.classList.remove('dragging');
+      dragId = null;
+      bar.querySelectorAll('.bk-chip').forEach(c => c.classList.remove('drag-target'));
+      dropLine.classList.remove('active');
+    };
+    chip.ondragover = e => {
+      e.preventDefault();
+      bar.querySelectorAll('.bk-chip').forEach(c => c.classList.remove('drag-target'));
+      chip.classList.add('drag-target');
+    };
+    chip.ondrop = e => {
+      e.preventDefault();
+      chip.classList.remove('drag-target');
+      if (dragId === null || dragId === bk.id) return;
+      reorder(dragId, bk.id);
+    };
+
+    bar.insertBefore(chip, addBtn);
+  });
+
+  renderTrash();
+  updateStats();
+}
+
+/* ── KEEP / REMOVE ── */
+function setKeep(id, val) {
+  const bk = bookmarks.find(b=>b.id===id);
+  if (!bk) return;
+  bk.keep = val;
+  clearCode();
+  render();
+}
+
+/* ── REORDER ── */
+function reorder(fromId, toId) {
+  const fi = bookmarks.findIndex(b=>b.id===fromId);
+  const ti = bookmarks.findIndex(b=>b.id===toId);
+  if (fi<0||ti<0) return;
+  const [item] = bookmarks.splice(fi, 1);
+  bookmarks.splice(ti, 0, item);
+  clearCode();
+  render();
+}
+
+/* ── TRASH ZONE ── */
+function trashDragOver(e) {
+  e.preventDefault();
+  document.getElementById('trashZone').classList.add('drag-over');
+}
+function trashDragLeave(e) {
+  document.getElementById('trashZone').classList.remove('drag-over');
+}
+function trashDrop(e) {
+  e.preventDefault();
+  document.getElementById('trashZone').classList.remove('drag-over');
+  if (dragId !== null) { setKeep(dragId, false); }
+}
+
+function renderTrash() {
+  const removed = bookmarks.filter(b => !b.keep);
+  const tc = document.getElementById('trashChips');
+  const te = document.getElementById('trashEmpty');
+  tc.innerHTML = '';
+  if (!removed.length) {
+    te.style.display = 'inline';
+    return;
+  }
+  te.style.display = 'none';
+  removed.forEach(bk => {
+    const chip = document.createElement('div');
+    chip.className = 'trash-chip';
+    chip.title = 'Click to restore';
+    const fav = makeFavEl(bk, 13);
+    chip.appendChild(fav);
+    const nm = document.createElement('span');
+    nm.textContent = bk.name;
+    chip.appendChild(nm);
+    const rx = document.createElement('span');
+    rx.className = 'restore-x';
+    rx.textContent = '↩';
+    chip.appendChild(rx);
+    chip.onclick = () => setKeep(bk.id, true);
+    tc.appendChild(chip);
+  });
+}
+
+/* ── STATS ── */
+function updateStats() {
+  const k = bookmarks.filter(b=>b.keep).length;
+  const r = bookmarks.length - k;
+  document.getElementById('pageStats').innerHTML =
+    `<div class="p-stat">${bookmarks.length} total</div>`+
+    `<div class="p-stat k">${k} kept</div>`+
+    (r ? `<div class="p-stat r">${r} removed</div>` : '');
+}
+
+/* ── ADD BOOKMARK ── */
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('newName').focus(), 80);
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('newName').value = '';
+  document.getElementById('newUrl').value = '';
+}
+function addBookmark() {
+  const name = document.getElementById('newName').value.trim();
+  const url  = document.getElementById('newUrl').value.trim();
+  if (!name) { document.getElementById('newName').focus(); return; }
+  bookmarks.push({ name, url: url || '', keep: true, id: nextId++ });
+  clearCode();
+  closeModal();
+  render();
+}
+document.getElementById('newUrl').addEventListener('keydown', e => { if(e.key==='Enter') addBookmark(); });
+
+/* ── ENCODING (self-contained) ── */
+const _fc=[BigInt(1)];
+function fact(n){for(let i=_fc.length;i<=n;i++)_fc.push(_fc[i-1]*BigInt(i));return _fc[n];}
+function permToInt(p){const a=[...Array(p.length).keys()];let r=BigInt(0);for(let i=0;i<p.length;i++){const pos=a.indexOf(p[i]);r+=BigInt(pos)*fact(p.length-1-i);a.splice(pos,1);}return r;}
+function intToPerm(num,n){const a=[...Array(n).keys()],p=[];for(let i=n-1;i>=0;i--){const f=fact(i),pos=Number(num/f);p.push(a[pos]);a.splice(pos,1);num=num%f;}return p;}
+const B36='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function toB36(n){if(n===BigInt(0))return'0';let s='';const b=BigInt(36);while(n>0){s=B36[Number(n%b)]+s;n=n/b;}return s;}
+function fromB36(s){let n=BigInt(0);const b=BigInt(36);for(const c of s.toUpperCase())n=n*b+BigInt(B36.indexOf(c));return n;}
+
+// Encode: capture base bookmarks order+keep. Custom-added ones stored in sessionStorage keyed by code.
+const BASE_N = 13; // original 13 bookmarks
+
+function encodeState() {
+  // Only encode the base 13; track which are kept and their order among base items
+  const baseInState = bookmarks.filter(b => b.id < BASE_N);
+  const order = baseInState.map(b => b.id);
+  const mask  = baseInState.reduce((a,b,i) => a|(b.keep ? 1<<i : 0), 0);
+  const code  = (toB36(permToInt(order)).padStart(7,'0') + mask.toString(36).toUpperCase().padStart(3,'0')).toUpperCase();
+  // Store extras in sessionStorage
+  const extras = bookmarks.filter(b=>b.id>=BASE_N).map(b=>({name:b.name,url:b.url,keep:b.keep}));
+  try { sessionStorage.setItem('dpm_ext_'+code, JSON.stringify(extras)); } catch(e){}
+  return code;
+}
+
+function decodeStateCode(code) {
+  const c = code.toUpperCase().replace(/[^0-9A-Z]/g,'');
+  if (c.length < 10) return null;
+  const pi = fromB36(c.slice(0,7));
+  if (pi >= fact(BASE_N)) return null;
+  const order = intToPerm(pi, BASE_N);
+  const mask  = parseInt(c.slice(7,10), 36);
+
+  const BASE_BK = [
+    { name:"RBI",                       url:"https://rbi.okta.com/" },
+    { name:"BK Gateway",                url:"https://rbi.okta.com/login/login.htm" },
+    { name:"MCP BIG 3",                 url:"" },
+    { name:"Bench Plan",                url:"" },
+    { name:"Restaurant Services",       url:"https://www.rsiweb.com/net/public/PubIndex.aspx" },
+    { name:"Paycom",                    url:"https://www.paycom.com/" },
+    { name:"MGRNG Login",               url:"https://192.168.1.80/mgrng/index.php" },
+    { name:"Bitrix24",                  url:"https://www.bitrix24.com/" },
+    { name:"My Apps",                   url:"https://rbi.okta.com/app/UserHome" },
+    { name:"Cash Connect",              url:"https://www.cashconnect.com/login-notice/" },
+    { name:"Flowers",                   url:"https://ffomsi.flocorp.com/clientportal/apps/cpOrderEntry.html" },
+    { name:"Zenput",                    url:"https://www.zenput.com/mobile/" },
+    { name:"Rapid Paycard",             url:"https://www.rapidclientportal.com/login" }
+  ];
+
+  const result = order.map((oi,i) => ({ ...BASE_BK[oi], keep: !!(mask & (1<<i)) }));
+  try {
+    const extras = JSON.parse(sessionStorage.getItem('dpm_ext_'+c)||'[]');
+    extras.forEach(e => result.push(e));
+  } catch(e){}
+  return result;
+}
+
+function clearCode() {
+  document.getElementById('codeResult').classList.remove('visible');
+}
+
+function generateCode() {
+  currentCode = encodeState();
+  document.getElementById('codeVal').textContent = currentCode;
+  const k=bookmarks.filter(b=>b.keep).length, r=bookmarks.filter(b=>!b.keep).length;
+  const reord = bookmarks.filter(b=>b.id<BASE_N).some((b,i,arr)=> arr[i].id !== i);
+  let s = `<strong>${k} of ${bookmarks.length}</strong> bookmarks kept`;
+  if(r) s += ` &mdash; <strong>${r}</strong> removed`;
+  if(reord) s += ' &mdash; custom order saved';
+  document.getElementById('codeSummary').innerHTML = s+'.';
+  const cr = document.getElementById('codeResult');
+  cr.classList.remove('visible');
+  requestAnimationFrame(()=>cr.classList.add('visible'));
+  document.getElementById('copyBtn').textContent='Copy';
+  document.getElementById('copyBtn').classList.remove('done');
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(currentCode).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    btn.textContent='Copied!'; btn.classList.add('done');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2200);
+  });
+}
+
+/* ── DECODE ── */
+let decodeOpen = false;
+function toggleDecode() {
+  decodeOpen = !decodeOpen;
+  document.getElementById('decodeBody').classList.toggle('open', decodeOpen);
+  document.getElementById('decodeArrow').textContent = decodeOpen ? '▼' : '▶';
+}
+
+function decodeCode() {
+  const code = document.getElementById('decodeInput').value.trim();
+  const res  = document.getElementById('decodeResult');
+  const head = document.getElementById('decodeHead');
+  const err  = document.getElementById('decodeErr');
+  const items= document.getElementById('drItems');
+  res.classList.remove('visible','error'); err.style.display='none'; items.innerHTML='';
+
+  if (code.length < 10) {
+    head.textContent='Invalid Code'; err.style.display='block'; err.textContent='Please enter the full 10+ character code.';
+    res.classList.add('visible','error'); return;
+  }
+  const result = decodeStateCode(code);
+  if (!result) {
+    head.textContent='Could Not Decode'; err.style.display='block'; err.textContent='This code appears to be invalid or corrupted.';
+    res.classList.add('visible','error'); return;
+  }
+  head.textContent=`Code: ${code.toUpperCase()} — ${result.filter(b=>b.keep).length} of ${result.length} kept`;
+  result.forEach((b,i)=>{
+    const row=document.createElement('div'); row.className='dr-row '+(b.keep?'kept':'removed');
+    const fav=makeFavEl({...b,name:b.name}, 14);
+    row.innerHTML=`<span class="dr-num">${i+1}</span>`;
+    row.appendChild(fav);
+    row.innerHTML+=`<span class="dr-name">${b.name}</span><span class="dr-badge">${b.keep?'Keep':'Remove'}</span>`;
+    items.appendChild(row);
+  });
+  res.classList.remove('visible'); requestAnimationFrame(()=>res.classList.add('visible'));
+}
+
+render();
+</script>
+</body>
+</html>
